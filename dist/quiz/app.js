@@ -7,7 +7,7 @@ const state = {
   subject: "全部题库",
   mode: "random",
   current: null,
-  selectedAnswer: "",
+  selectedAnswers: [],
   revealed: false,
   wrongBook: loadWrongBook(),
   offlineReady: false,
@@ -18,6 +18,7 @@ const subjectSelect = document.querySelector("#subject-select");
 const modeSelect = document.querySelector("#mode-select");
 const startBtn = document.querySelector("#start-btn");
 const nextBtn = document.querySelector("#next-btn");
+const submitAnswerBtn = document.querySelector("#submit-answer-btn");
 const showAnswerBtn = document.querySelector("#show-answer-btn");
 const toggleWrongBtn = document.querySelector("#toggle-wrong-btn");
 const exportBtn = document.querySelector("#export-btn");
@@ -72,6 +73,7 @@ function bindEvents() {
 
   startBtn.addEventListener("click", () => pickQuestion());
   nextBtn.addEventListener("click", () => pickQuestion());
+  submitAnswerBtn.addEventListener("click", submitAnswer);
   showAnswerBtn.addEventListener("click", revealAnswer);
   toggleWrongBtn.addEventListener("click", toggleWrongEntry);
   exportBtn.addEventListener("click", () => exportWrongQuestions());
@@ -97,7 +99,7 @@ function toggleWrongEntry() {
   if (exists) {
     delete state.wrongBook[state.current.id];
   } else {
-    state.wrongBook[state.current.id] = makeWrongRecord(state.current, state.selectedAnswer || "未作答");
+    state.wrongBook[state.current.id] = makeWrongRecord(state.current, formatSelectedAnswer() || "未作答");
   }
 
   persistWrongBook();
@@ -158,7 +160,7 @@ function getCurrentPool() {
 }
 
 function resetQuestionState() {
-  state.selectedAnswer = "";
+  state.selectedAnswers = [];
   state.revealed = false;
 }
 
@@ -170,23 +172,28 @@ function renderQuestion() {
   }
 
   const label = question.subIndex ? `${question.questionNo}-${question.subIndex}` : question.questionNo;
+  const multiChoice = isMultiChoiceQuestion(question);
   questionMeta.innerHTML = `
     <span class="meta-chip">${question.subject}</span>
     <span class="meta-chip">题号 ${label}</span>
     ${question.typeName ? `<span class="meta-chip">${question.typeName}</span>` : ""}
+    ${question.subIndex ? `<span class="meta-chip">第 ${question.subIndex} 小题</span>` : ""}
+    ${question.stem ? '<span class="meta-chip">共用题干</span>' : ""}
   `;
-  questionStem.innerHTML = question.stem;
-  questionPrompt.innerHTML = question.prompt;
+  questionStem.innerHTML = question.stem ? `<strong>共用题干</strong><br>${question.stem}` : "";
+  questionPrompt.innerHTML = multiChoice
+    ? `${normalizePrompt(question.prompt)}<br><span class="question-hint">这是多选题，可多选后点“提交答案”。</span>`
+    : normalizePrompt(question.prompt);
   optionList.innerHTML = question.options
     .map((option) => {
       const classes = ["option"];
-      if (state.selectedAnswer === option.key) {
+      if (state.selectedAnswers.includes(option.key)) {
         classes.push("selected");
       }
-      if (state.revealed && option.key === question.answer) {
+      if (state.revealed && isAnswerIncluded(question.answer, option.key)) {
         classes.push("correct");
       }
-      if (state.revealed && state.selectedAnswer === option.key && option.key !== question.answer) {
+      if (state.revealed && state.selectedAnswers.includes(option.key) && !isAnswerIncluded(question.answer, option.key)) {
         classes.push("wrong");
       }
 
@@ -205,6 +212,8 @@ function renderQuestion() {
 
   const inWrongBook = Boolean(state.wrongBook[question.id]);
   toggleWrongBtn.textContent = inWrongBook ? "移出错题本" : "加入错题本";
+  submitAnswerBtn.classList.toggle("hidden", !multiChoice || state.revealed);
+  showAnswerBtn.classList.toggle("hidden", multiChoice && !state.revealed);
 
   if (!state.revealed) {
     feedback.className = "feedback hidden";
@@ -214,11 +223,12 @@ function renderQuestion() {
     return;
   }
 
-  const isCorrect = state.selectedAnswer && state.selectedAnswer === question.answer;
+  const userAnswer = formatSelectedAnswer();
+  const isCorrect = isAnswerCorrect(question);
   feedback.className = `feedback ${isCorrect ? "ok" : "bad"}`;
   feedback.innerHTML = `
     正确答案：<strong>${question.answer || "未识别"}</strong>
-    ${state.selectedAnswer ? `<br>你的答案：<strong>${state.selectedAnswer}</strong>` : "<br>你还没作答"}
+    ${userAnswer ? `<br>你的答案：<strong>${userAnswer}</strong>` : "<br>你还没作答"}
   `;
   explanation.className = "explanation";
   explanation.innerHTML = `<strong>解析</strong><br>${question.explanation || "暂无解析"}`;
@@ -229,6 +239,8 @@ function renderEmptyState() {
   questionStem.innerHTML = "";
   questionPrompt.innerHTML = "可以切换题库，或者先做几道题积累错题。";
   optionList.innerHTML = "";
+  submitAnswerBtn.classList.add("hidden");
+  showAnswerBtn.classList.remove("hidden");
   feedback.className = "feedback hidden";
   explanation.className = "explanation hidden";
 }
@@ -238,11 +250,41 @@ function selectAnswer(answer) {
     return;
   }
 
-  state.selectedAnswer = answer;
+  if (isMultiChoiceQuestion(state.current)) {
+    if (state.revealed) {
+      return;
+    }
+    if (state.selectedAnswers.includes(answer)) {
+      state.selectedAnswers = state.selectedAnswers.filter((item) => item !== answer);
+    } else {
+      state.selectedAnswers = [...state.selectedAnswers, answer].sort();
+    }
+    renderQuestion();
+    return;
+  }
+
+  state.selectedAnswers = [answer];
+  finalizeAnswer();
+}
+
+function submitAnswer() {
+  if (!state.current || !isMultiChoiceQuestion(state.current)) {
+    return;
+  }
+
+  if (state.selectedAnswers.length === 0) {
+    alert("请先选择答案，再提交。");
+    return;
+  }
+
+  finalizeAnswer();
+}
+
+function finalizeAnswer() {
   state.revealed = true;
 
-  if (answer !== state.current.answer) {
-    state.wrongBook[state.current.id] = makeWrongRecord(state.current, answer);
+  if (!isAnswerCorrect(state.current)) {
+    state.wrongBook[state.current.id] = makeWrongRecord(state.current, formatSelectedAnswer() || "未作答");
     persistWrongBook();
   }
 
@@ -554,6 +596,30 @@ function exposeHelpers() {
       return state.current;
     }
   };
+}
+
+function isMultiChoiceQuestion(question) {
+  return /X型题/.test(question?.typeName || "");
+}
+
+function normalizeAnswer(answer) {
+  return String(answer || "").replace(/[^A-E]/g, "").split("").sort().join("");
+}
+
+function isAnswerIncluded(answer, optionKey) {
+  return normalizeAnswer(answer).includes(optionKey);
+}
+
+function formatSelectedAnswer() {
+  return [...state.selectedAnswers].sort().join("");
+}
+
+function isAnswerCorrect(question) {
+  return normalizeAnswer(formatSelectedAnswer()) === normalizeAnswer(question?.answer);
+}
+
+function normalizePrompt(prompt) {
+  return String(prompt || "").replace(/^\s*\[[^\]]+\]\s*/, "");
 }
 
 function stripHtml(html) {
