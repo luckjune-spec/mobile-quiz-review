@@ -39,15 +39,15 @@ select {
 .app-shell {
   width: min(100%, 720px);
   margin: 0 auto;
-  padding: 20px 14px 40px;
+  padding: 10px 12px 32px;
 }
 
 .hero {
-  padding: 18px 10px 8px;
+  padding: 8px 6px 4px;
 }
 
 .eyebrow {
-  margin: 0 0 10px;
+  margin: 0 0 4px;
   color: var(--primary);
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -58,14 +58,14 @@ select {
 .hero h1 {
   margin: 0;
   font-family: var(--font-title);
-  font-size: clamp(2rem, 8vw, 3.4rem);
-  line-height: 1.05;
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  line-height: 1.08;
 }
 
 .hero-copy {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .panel-stack {
@@ -78,7 +78,7 @@ select {
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 14px;
   backdrop-filter: blur(10px);
 }
 
@@ -93,26 +93,26 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px;
-  border-radius: 18px;
+  padding: 10px 12px;
+  border-radius: 14px;
   background: linear-gradient(135deg, rgba(178, 74, 42, 0.1), rgba(28, 124, 117, 0.08));
   border: 1px solid rgba(87, 61, 40, 0.1);
 }
 
 .offline-banner p {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .field + .field {
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .field label {
   display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -121,22 +121,22 @@ select {
   border: 1px solid rgba(87, 61, 40, 0.15);
   border-radius: 14px;
   background: #fffaf3;
-  padding: 12px 14px;
+  padding: 10px 12px;
   color: var(--text);
 }
 
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 button {
   border: 0;
   border-radius: 999px;
-  padding: 12px 16px;
-  min-height: 44px;
+  padding: 10px 14px;
+  min-height: 40px;
   cursor: pointer;
 }
 
@@ -158,9 +158,12 @@ button.ghost {
 
 .stats,
 .question-meta {
-  margin-top: 12px;
+  margin-top: 10px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .question-stem,
@@ -177,12 +180,13 @@ button.ghost {
 }
 
 .question-stem {
-  padding: 0 0 10px;
+  padding: 0 0 6px;
   color: var(--muted);
+  font-size: 14px;
 }
 
 .question-prompt {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -196,14 +200,14 @@ button.ghost {
 .option-list {
   display: grid;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .option {
   width: 100%;
   text-align: left;
   border-radius: var(--radius-sm);
-  padding: 14px;
+  padding: 12px;
   background: #fffaf3;
   border: 1px solid rgba(74, 56, 39, 0.12);
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
@@ -230,10 +234,22 @@ button.ghost {
 
 .feedback,
 .explanation {
-  margin-top: 14px;
-  padding: 14px;
+  margin-top: 12px;
+  padding: 12px;
   border-radius: var(--radius-sm);
   background: #fff8ee;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(127, 46, 24, 0.08);
+  border: 1px solid rgba(127, 46, 24, 0.08);
+  color: var(--muted);
+  line-height: 1.2;
 }
 
 .feedback.ok {
@@ -257,6 +273,41 @@ button.ghost {
 .section-title-row h2 {
   margin: 0;
   font-size: 18px;
+}
+
+@media (max-width: 640px) {
+  .hero-copy {
+    display: none;
+  }
+
+  .panel-stack {
+    gap: 10px;
+  }
+
+  .panel {
+    border-radius: 18px;
+    padding: 12px;
+  }
+
+  .offline-banner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .offline-banner button,
+  .actions button {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .question-meta {
+    margin-top: 0;
+  }
+
+  .question-prompt {
+    font-size: 15px;
+    line-height: 1.55;
+  }
 }
 
 .count-badge {

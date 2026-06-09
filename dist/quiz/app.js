@@ -171,8 +171,9 @@ function renderQuestion() {
 
   const label = question.subIndex ? `${question.questionNo}-${question.subIndex}` : question.questionNo;
   questionMeta.innerHTML = `
-    ${question.subject} · 题号 ${label}${question.typeName ? ` · ${question.typeName}` : ""}
-    <br>来源：${question.sourceFile}
+    <span class="meta-chip">${question.subject}</span>
+    <span class="meta-chip">题号 ${label}</span>
+    ${question.typeName ? `<span class="meta-chip">${question.typeName}</span>` : ""}
   `;
   questionStem.innerHTML = question.stem;
   questionPrompt.innerHTML = question.prompt;
@@ -255,9 +256,9 @@ function renderStats(poolLength = getCurrentPool().length) {
     state.subject === "全部题库" || question.subject === state.subject
   )).length;
   stats.innerHTML = `
-    当前范围：${total} 题
-    <br>当前模式可抽：${poolLength} 题
-    <br>已收录错题：${Object.keys(state.wrongBook).length} 题
+    <span class="meta-chip">当前范围 ${total} 题</span>
+    <span class="meta-chip">可抽 ${poolLength} 题</span>
+    <span class="meta-chip">错题 ${Object.keys(state.wrongBook).length} 题</span>
   `;
 }
 
@@ -446,13 +447,13 @@ function syncUrl() {
 
 async function registerServiceWorker() {
   if (!window.isSecureContext) {
-    offlineStatus.innerHTML = '<span class="status-bad">当前打开方式不支持离线缓存。</span> 手机上请用 Safari 打开一个 HTTPS 地址后再缓存。';
+    offlineStatus.innerHTML = '<span class="status-warn">当前页面还不能离线保存。</span> 请用手机 Safari 打开 HTTPS 链接后，再点一次“缓存离线题库”。';
     downloadOfflineBtn.disabled = true;
     return;
   }
 
   if (!("serviceWorker" in navigator)) {
-    offlineStatus.innerHTML = '<span class="status-bad">当前浏览器不支持离线安装。</span> 建议换 Safari 或系统浏览器。';
+    offlineStatus.innerHTML = '<span class="status-warn">这个浏览器不支持离线保存。</span> 建议换 Safari 再试。';
     downloadOfflineBtn.disabled = true;
     return;
   }
@@ -460,20 +461,20 @@ async function registerServiceWorker() {
   try {
     await navigator.serviceWorker.register("./sw.js");
   } catch (error) {
-    offlineStatus.innerHTML = '<span class="status-bad">离线功能注册失败。</span> 通常是因为当前不是 HTTPS 地址，或者不是系统浏览器。';
+    offlineStatus.innerHTML = '<span class="status-warn">离线功能暂时没启用成功。</span> 一般换成 Safari，或者重新打开 HTTPS 链接后即可。';
     downloadOfflineBtn.disabled = true;
   }
 }
 
 async function refreshOfflineStatus() {
   if (!window.isSecureContext) {
-    offlineStatus.innerHTML = '<span class="status-bad">当前打开方式不支持离线缓存。</span> 电脑上的 localhost 可以，手机局域网 http 地址不行。';
+    offlineStatus.innerHTML = '<span class="status-warn">当前页面还不能离线保存。</span> 手机需要通过 HTTPS 链接打开，普通局域网地址不行。';
     downloadOfflineBtn.disabled = true;
     return;
   }
 
   if (!("caches" in window)) {
-    offlineStatus.innerHTML = '<span class="status-bad">当前浏览器不支持离线缓存。</span> 建议换 Safari 或系统浏览器。';
+    offlineStatus.innerHTML = '<span class="status-warn">这个浏览器不支持离线缓存。</span> 建议换 Safari 再试。';
     downloadOfflineBtn.disabled = true;
     return;
   }
@@ -494,7 +495,7 @@ async function refreshOfflineStatus() {
     return;
   }
 
-  offlineStatus.innerHTML = `<span class="status-warn">已缓存 ${progress}/${offlineManifest.files.length} 个文件。</span> 建议先点一次“缓存离线题库”。`;
+  offlineStatus.innerHTML = `<span class="status-warn">已缓存 ${progress}/${offlineManifest.files.length} 个文件。</span> 保持页面打开，点一次“缓存离线题库”即可。`;
   downloadOfflineBtn.textContent = "缓存离线题库";
 }
 
@@ -530,7 +531,10 @@ async function downloadOfflinePackage() {
     offlineStatus.innerHTML = '<span class="status-ok">离线题库已经缓存完成，出门后也能继续刷题。</span>';
     downloadOfflineBtn.textContent = "重新缓存";
   } catch (error) {
-    offlineStatus.innerHTML = '<span class="status-bad">离线缓存失败，请保持网络正常后再试一次。</span>';
+    const failureMessage = navigator.onLine
+      ? "离线保存这次没有完成。请继续联网，保持页面别关，再点一次“重试缓存”。"
+      : "当前网络已经断开，先连上网，再点一次“重试缓存”。";
+    offlineStatus.innerHTML = `<span class="status-bad">${failureMessage}</span>`;
     downloadOfflineBtn.textContent = "重试缓存";
   } finally {
     state.offlineBusy = false;
