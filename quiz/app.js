@@ -11,13 +11,19 @@ const state = {
   revealed: false,
   wrongBook: loadWrongBook(),
   offlineReady: false,
-  offlineBusy: false
+  offlineBusy: false,
+  controlsCollapsed: false
 };
 
 const subjectSelect = document.querySelector("#subject-select");
 const modeSelect = document.querySelector("#mode-select");
 const startBtn = document.querySelector("#start-btn");
 const nextBtn = document.querySelector("#next-btn");
+const quickNextBtn = document.querySelector("#quick-next-btn");
+const toggleControlsBtn = document.querySelector("#toggle-controls-btn");
+const controlsPanel = document.querySelector(".controls-panel");
+const controlsSummaryTitle = document.querySelector("#controls-summary-title");
+const controlsSummarySubtitle = document.querySelector("#controls-summary-subtitle");
 const submitAnswerBtn = document.querySelector("#submit-answer-btn");
 const showAnswerBtn = document.querySelector("#show-answer-btn");
 const toggleWrongBtn = document.querySelector("#toggle-wrong-btn");
@@ -42,6 +48,7 @@ async function init() {
   populateSubjects();
   applyInitialFilters();
   bindEvents();
+  initResponsiveControls();
   renderWrongBook();
   renderStats();
   pickQuestion(readRequestedQuestionId());
@@ -73,6 +80,8 @@ function bindEvents() {
 
   startBtn.addEventListener("click", () => pickQuestion());
   nextBtn.addEventListener("click", () => pickQuestion());
+  quickNextBtn.addEventListener("click", () => pickQuestion());
+  toggleControlsBtn.addEventListener("click", toggleControlsPanel);
   submitAnswerBtn.addEventListener("click", submitAnswer);
   showAnswerBtn.addEventListener("click", revealAnswer);
   toggleWrongBtn.addEventListener("click", toggleWrongEntry);
@@ -302,6 +311,7 @@ function renderStats(poolLength = getCurrentPool().length) {
     <span class="meta-chip">可抽 ${poolLength} 题</span>
     <span class="meta-chip">错题 ${Object.keys(state.wrongBook).length} 题</span>
   `;
+  renderControlsSummary(total, poolLength);
 }
 
 function renderWrongBook() {
@@ -596,6 +606,36 @@ function exposeHelpers() {
       return state.current;
     }
   };
+}
+
+function initResponsiveControls() {
+  const media = window.matchMedia("(max-width: 640px)");
+  const apply = () => {
+    state.controlsCollapsed = media.matches;
+    syncControlsPanel();
+  };
+  apply();
+  if (typeof media.addEventListener === "function") {
+    media.addEventListener("change", apply);
+  } else if (typeof media.addListener === "function") {
+    media.addListener(apply);
+  }
+}
+
+function toggleControlsPanel() {
+  state.controlsCollapsed = !state.controlsCollapsed;
+  syncControlsPanel();
+}
+
+function syncControlsPanel() {
+  controlsPanel.classList.toggle("is-collapsed", state.controlsCollapsed);
+  toggleControlsBtn.textContent = state.controlsCollapsed ? "展开" : "收起";
+}
+
+function renderControlsSummary(total, poolLength) {
+  const modeLabel = state.mode === "wrong" ? "只练错题" : "随机抽题";
+  controlsSummaryTitle.textContent = state.subject === "全部题库" ? "刷题设置" : state.subject;
+  controlsSummarySubtitle.textContent = `${modeLabel} · 可抽 ${poolLength} / 共 ${total}`;
 }
 
 function isMultiChoiceQuestion(question) {

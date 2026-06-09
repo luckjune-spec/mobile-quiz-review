@@ -88,6 +88,38 @@ select {
   z-index: 10;
 }
 
+.controls-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.controls-summary-main {
+  min-width: 0;
+}
+
+.controls-summary-main strong {
+  display: block;
+  font-size: 15px;
+}
+
+.controls-summary-main p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.controls-summary-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#controls-body {
+  margin-top: 12px;
+}
+
 .offline-banner {
   display: flex;
   align-items: center;
@@ -284,8 +316,16 @@ button.ghost {
 }
 
 @media (max-width: 640px) {
+  .hero {
+    padding-top: 4px;
+  }
+
   .hero-copy {
     display: none;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
   }
 
   .panel-stack {
@@ -306,6 +346,28 @@ button.ghost {
   .offline-banner button,
   .actions button {
     flex: 1 1 calc(50% - 8px);
+  }
+
+  .controls-summary {
+    align-items: flex-start;
+  }
+
+  .controls-summary-actions {
+    flex-direction: column;
+    width: 92px;
+  }
+
+  .controls-summary-actions button {
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+
+  .controls-panel.is-collapsed #controls-body {
+    display: none;
+  }
+
+  .controls-panel.is-collapsed {
+    padding-bottom: 10px;
   }
 
   .question-meta {

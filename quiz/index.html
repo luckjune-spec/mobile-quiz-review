@@ -23,29 +23,41 @@
 
       <main class="panel-stack">
         <section class="panel controls-panel">
-          <div class="offline-banner">
-            <div>
-              <strong>离线复习</strong>
-              <p id="offline-status">正在检查离线状态…</p>
+          <div class="controls-summary">
+            <div class="controls-summary-main">
+              <strong id="controls-summary-title">刷题设置</strong>
+              <p id="controls-summary-subtitle">全部题库 · 随机抽题</p>
             </div>
-            <button id="download-offline-btn" class="primary">缓存离线题库</button>
+            <div class="controls-summary-actions">
+              <button id="quick-next-btn" class="secondary">下一题</button>
+              <button id="toggle-controls-btn" class="ghost">收起</button>
+            </div>
           </div>
-          <div class="field">
-            <label for="subject-select">选择题库</label>
-            <select id="subject-select"></select>
+          <div id="controls-body">
+            <div class="offline-banner">
+              <div>
+                <strong>离线复习</strong>
+                <p id="offline-status">正在检查离线状态…</p>
+              </div>
+              <button id="download-offline-btn" class="primary">缓存离线题库</button>
+            </div>
+            <div class="field">
+              <label for="subject-select">选择题库</label>
+              <select id="subject-select"></select>
+            </div>
+            <div class="field">
+              <label for="mode-select">出题方式</label>
+              <select id="mode-select">
+                <option value="random">随机抽题</option>
+                <option value="wrong">只练错题</option>
+              </select>
+            </div>
+            <div class="actions">
+              <button id="start-btn" class="primary">开始刷题</button>
+              <button id="next-btn" class="secondary">下一题</button>
+            </div>
+            <div class="stats" id="stats"></div>
           </div>
-          <div class="field">
-            <label for="mode-select">出题方式</label>
-            <select id="mode-select">
-              <option value="random">随机抽题</option>
-              <option value="wrong">只练错题</option>
-            </select>
-          </div>
-          <div class="actions">
-            <button id="start-btn" class="primary">开始刷题</button>
-            <button id="next-btn" class="secondary">下一题</button>
-          </div>
-          <div class="stats" id="stats"></div>
         </section>
 
         <section class="panel question-panel">
