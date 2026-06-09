@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>副高刷题</title>
+    <meta name="theme-color" content="#b24a2a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="副高刷题">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icon-180.png">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">随手刷题</p>
+        <h1>副高口腔复习站</h1>
+        <p class="hero-copy">练习、收错、复盘、导出，手机上直接用。</p>
+      </header>
+
+      <main class="panel-stack">
+        <section class="panel controls-panel">
+          <div class="offline-banner">
+            <div>
+              <strong>离线复习</strong>
+              <p id="offline-status">正在检查离线状态…</p>
+            </div>
+            <button id="download-offline-btn" class="primary">缓存离线题库</button>
+          </div>
+          <div class="field">
+            <label for="subject-select">选择题库</label>
+            <select id="subject-select"></select>
+          </div>
+          <div class="field">
+            <label for="mode-select">出题方式</label>
+            <select id="mode-select">
+              <option value="random">随机抽题</option>
+              <option value="wrong">只练错题</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button id="start-btn" class="primary">开始刷题</button>
+            <button id="next-btn" class="secondary">下一题</button>
+          </div>
+          <div class="stats" id="stats"></div>
+        </section>
+
+        <section class="panel question-panel">
+          <div class="question-meta" id="question-meta"></div>
+          <div class="question-stem" id="question-stem"></div>
+          <div class="question-prompt" id="question-prompt"></div>
+          <div class="option-list" id="option-list"></div>
+          <div class="actions answer-actions">
+            <button id="show-answer-btn" class="ghost">查看答案</button>
+            <button id="toggle-wrong-btn" class="ghost">加入错题本</button>
+          </div>
+          <div class="feedback hidden" id="feedback"></div>
+          <div class="explanation hidden" id="explanation"></div>
+        </section>
+
+        <section class="panel wrong-panel">
+          <div class="section-title-row">
+            <h2>错题本</h2>
+            <span id="wrong-count" class="count-badge">0</span>
+          </div>
+          <div class="actions">
+            <button id="export-btn" class="primary">导出错题</button>
+            <button id="export-pool-btn" class="ghost">导出当前题库</button>
+            <button id="clear-btn" class="secondary">清空错题</button>
+          </div>
+          <div id="wrong-preview" class="wrong-preview"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./offline-manifest.js"></script>
+    <script src="./data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+  </html>
